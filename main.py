@@ -1,6 +1,7 @@
 import os
 
 import requests
+from bs4 import BeautifulSoup
 
 
 def check_for_redirect(response: requests.Response):
@@ -8,6 +9,18 @@ def check_for_redirect(response: requests.Response):
         return
 
     raise requests.HTTPError
+
+
+def get_book_info(book_id):
+    response = requests.get(
+        f'http://tululu.org/b{book_id}/'
+    )
+    response.raise_for_status()
+
+    soup = BeautifulSoup(response.text, 'lxml')
+    book_header = soup.find('td', class_='ow_px_td').find('h1')
+    title, author = book_header.text.split('::')
+    return title.strip(), author.strip()
 
 
 def download_books(count, folder_path):
@@ -30,4 +43,4 @@ def download_books(count, folder_path):
 
 
 os.makedirs('books', exist_ok=True)
-download_books(10, 'books')
+print(get_book_info(1))

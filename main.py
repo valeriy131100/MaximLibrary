@@ -20,7 +20,7 @@ def get_book_title(book_id):
     check_for_redirect(response)
 
     soup = BeautifulSoup(response.text, 'lxml')
-    book_header = soup.find('td', class_='ow_px_td').find('h1')
+    book_header = soup.find('h1')
     title, _ = book_header.text.split('::')
     return title.strip()
 

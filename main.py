@@ -3,7 +3,8 @@ import urllib.parse
 
 import requests
 from bs4 import BeautifulSoup
-from pathvalidate import sanitize_filename
+
+import file_workers
 
 
 def check_for_redirect(response: requests.Response):
@@ -11,13 +12,6 @@ def check_for_redirect(response: requests.Response):
         return
 
     raise requests.HTTPError
-
-
-def get_url_file_extension(url):
-    parsed_url = urllib.parse.urlparse(url)
-    path = urllib.parse.unquote(parsed_url.path)
-    extension = os.path.splitext(path)[1]
-    return extension
 
 
 def parse_book(book_id):
@@ -41,19 +35,6 @@ def parse_book(book_id):
     }
 
 
-def download_file(url, filename, folder):
-    response = requests.get(url)
-    response.raise_for_status()
-    check_for_redirect(response)
-
-    filepath = os.path.join(folder, sanitize_filename(filename))
-
-    with open(filepath, 'wb') as file:
-        file.write(response.content)
-
-    return filepath
-
-
 def download_books(count, books_folder='books/', images_folder='images/'):
     for book_id in range(1, count + 1):
         try:
@@ -61,7 +42,7 @@ def download_books(count, books_folder='books/', images_folder='images/'):
 
             title = parsed_book['title']
 
-            download_file(
+            file_workers.download_file(
                 url=f'https://tululu.org/txt.php?id={book_id}',
                 filename=f'{book_id}. {title}.txt',
                 folder=books_folder,
@@ -71,11 +52,12 @@ def download_books(count, books_folder='books/', images_folder='images/'):
             full_image_url = urllib.parse.urljoin(
                 'https://tululu.org', image_url
             )
+            image_extension = file_workers.get_url_file_extension(image_url)
 
-            download_file(
+            file_workers.download_file(
                 url=full_image_url,
-                filename=os.path.basename(image_url),
-                folder=images_folder,
+                filename=f'{book_id}. {title}.{image_extension}',
+                folder=images_folder
             )
 
         except requests.HTTPError:

@@ -1,4 +1,3 @@
-import os
 import urllib.parse
 
 import requests
@@ -29,14 +28,21 @@ def parse_book(book_id):
 
     image = soup.find('div', {'class': 'bookimage'}).find('img')
 
-    comments_divs = soup.find_all('div', {'class': 'texts'})
+    comments = [
+        comment.find('span').text
+        for comment in soup.find_all('div', {'class': 'texts'})
+    ]
 
-    comments = [comment_div.find('span').text for comment_div in comments_divs]
+    genres = [
+        genre.text
+        for genre in soup.find('span', {'class': 'd_book'}).find_all('a')
+    ]
 
     return {
         'title': title.strip(),
         'image_url': image.attrs['src'],
-        'comments': comments
+        'comments': comments,
+        'genres': genres
     }
 
 

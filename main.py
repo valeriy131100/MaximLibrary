@@ -29,9 +29,14 @@ def parse_book(book_id):
 
     image = soup.find('div', {'class': 'bookimage'}).find('img')
 
+    comments_divs = soup.find_all('div', {'class': 'texts'})
+
+    comments = [comment_div.find('span').text for comment_div in comments_divs]
+
     return {
         'title': title.strip(),
-        'image_url': image.attrs['src']
+        'image_url': image.attrs['src'],
+        'comments': comments
     }
 
 
@@ -65,6 +70,4 @@ def download_books(count, books_folder='books/', images_folder='images/'):
 
 
 if __name__ == '__main__':
-    os.makedirs('books', exist_ok=True)
-    os.makedirs('images', exist_ok=True)
-    download_books(10)
+    print(parse_book(9))

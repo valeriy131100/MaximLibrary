@@ -76,14 +76,20 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--start_id', default=1, type=int)
     parser.add_argument('-e', '--end_id', default=10, type=int)
+    parser.add_argument('-i', '--images_folder', default='images/')
+    parser.add_argument('-b', '--books_folder', default='books/')
 
     args = parser.parse_args()
 
-    os.makedirs('books', exist_ok=True)
-    os.makedirs('images', exist_ok=True)
+    os.makedirs(args.images_folder, exist_ok=True)
+    os.makedirs(args.books_folder, exist_ok=True)
 
     for book_id in range(args.start_id, args.end_id + 1):
         try:
-            download_book(book_id=book_id)
+            download_book(
+                book_id=book_id,
+                images_folder=args.images_folder,
+                books_folder=args.books_folder
+            )
         except requests.HTTPError:
             continue

@@ -1,3 +1,4 @@
+import argparse
 import os
 import urllib.parse
 
@@ -72,10 +73,16 @@ def download_book(book_id, books_folder='books/', images_folder='images/'):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--start_id', default=1, type=int)
+    parser.add_argument('-e', '--end_id', default=10, type=int)
+
+    args = parser.parse_args()
+
     os.makedirs('books', exist_ok=True)
     os.makedirs('images', exist_ok=True)
 
-    for book_id in range(1, 11):
+    for book_id in range(args.start_id, args.end_id + 1):
         try:
             download_book(book_id=book_id)
         except requests.HTTPError:

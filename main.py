@@ -1,3 +1,4 @@
+import os
 import urllib.parse
 
 import requests
@@ -13,15 +14,8 @@ def check_for_redirect(response: requests.Response):
     raise requests.HTTPError
 
 
-def parse_book(book_id):
-    response = requests.get(
-        f'https://tululu.org/b{book_id}/'
-    )
-    response.raise_for_status()
-
-    check_for_redirect(response)
-
-    soup = BeautifulSoup(response.text, 'lxml')
+def parse_book_page(book_page):
+    soup = BeautifulSoup(book_page, 'lxml')
 
     book_header = soup.find('h1')
     title, _ = book_header.text.split('::')
@@ -46,34 +40,43 @@ def parse_book(book_id):
     }
 
 
-def download_books(count, books_folder='books/', images_folder='images/'):
-    for book_id in range(1, count + 1):
-        try:
-            parsed_book = parse_book(book_id)
+def download_book(book_id, books_folder='books/', images_folder='images/'):
+    response = requests.get(
+        f'https://tululu.org/b{book_id}/'
+    )
+    response.raise_for_status()
 
-            title = parsed_book['title']
+    check_for_redirect(response)
 
-            file_workers.download_file(
-                url=f'https://tululu.org/txt.php?id={book_id}',
-                filename=f'{book_id}. {title}.txt',
-                folder=books_folder,
-            )
+    parsed_book = parse_book_page(response.text)
 
-            image_url = parsed_book['image_url']
-            full_image_url = urllib.parse.urljoin(
-                'https://tululu.org', image_url
-            )
-            image_extension = file_workers.get_url_file_extension(image_url)
+    title = parsed_book['title']
 
-            file_workers.download_file(
-                url=full_image_url,
-                filename=f'{book_id}. {title}.{image_extension}',
-                folder=images_folder
-            )
+    file_workers.download_file(
+        url=f'https://tululu.org/txt.php?id={book_id}',
+        filename=f'{book_id}. {title}.txt',
+        folder=books_folder,
+    )
 
-        except requests.HTTPError:
-            continue
+    image_url = parsed_book['image_url']
+    full_image_url = urllib.parse.urljoin(
+        'https://tululu.org', image_url
+    )
+    image_extension = file_workers.get_url_file_extension(image_url)
+
+    file_workers.download_file(
+        url=full_image_url,
+        filename=f'{book_id}. {title}.{image_extension}',
+        folder=images_folder
+    )
 
 
 if __name__ == '__main__':
-    print(parse_book(9))
+    os.makedirs('books', exist_ok=True)
+    os.makedirs('images', exist_ok=True)
+
+    for book_id in range(1, 11):
+        try:
+            download_book(book_id=book_id)
+        except requests.HTTPError:
+            continue

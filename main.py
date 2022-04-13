@@ -52,10 +52,11 @@ def download_book(book_id, books_folder='books/', images_folder='images/'):
     title = parsed_book['title']
 
     file_workers.download_file(
-        url=f'https://tululu.org/txt.php?id={book_id}',
+        url=f'https://tululu.org/txt.php',
         filename=f'{book_id}. {title}.txt',
         folder=books_folder,
-        as_text=True
+        as_text=True,
+        request_params={'id': book_id}
     )
 
     image_url = parsed_book['image_url']

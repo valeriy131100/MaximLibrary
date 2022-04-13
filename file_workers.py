@@ -14,8 +14,8 @@ def get_url_file_extension(url):
     return extension
 
 
-def download_file(url, filename, folder, as_text=False):
-    response = requests.get(url)
+def download_file(url, filename, folder, as_text=False, request_params=None):
+    response = requests.get(url, params=request_params)
     response.raise_for_status()
     check_for_redirect(response)
 

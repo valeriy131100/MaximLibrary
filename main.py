@@ -9,10 +9,8 @@ import file_workers
 
 
 def check_for_redirect(response: requests.Response):
-    if not response.history:
-        return
-
-    raise requests.HTTPError
+    if response.history:
+        raise requests.HTTPError
 
 
 def parse_book_page(book_page):

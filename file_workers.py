@@ -14,14 +14,18 @@ def get_url_file_extension(url):
     return extension
 
 
-def download_file(url, filename, folder):
+def download_file(url, filename, folder, as_text=False):
     response = requests.get(url)
     response.raise_for_status()
     check_for_redirect(response)
 
     filepath = os.path.join(folder, sanitize_filename(filename))
 
-    with open(filepath, 'wb') as file:
-        file.write(response.content)
+    if as_text:
+        with open(filepath, 'w') as file:
+            file.write(response.text)
+    else:
+        with open(filepath, 'wb') as file:
+            file.write(response.content)
 
     return filepath

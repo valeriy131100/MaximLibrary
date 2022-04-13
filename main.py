@@ -55,6 +55,7 @@ def download_book(book_id, books_folder='books/', images_folder='images/'):
         url=f'https://tululu.org/txt.php?id={book_id}',
         filename=f'{book_id}. {title}.txt',
         folder=books_folder,
+        as_text=True
     )
 
     image_url = parsed_book['image_url']

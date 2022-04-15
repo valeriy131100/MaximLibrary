@@ -48,7 +48,3 @@ def get_category_book_ids(category_id, start, end):
             break
 
     return ids
-
-
-if __name__ == '__main__':
-    print(get_category_book_ids(55, 1, 11))

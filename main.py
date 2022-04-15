@@ -81,8 +81,10 @@ def download_book(book_id, books_folder='books/', images_folder='images/'):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--start_id', default=1, type=int)
-    parser.add_argument('-e', '--end_id', default=10, type=int)
+
+    parser.add_argument('-s', '--start_page', default=1, type=int)
+    parser.add_argument('-e', '--end_page', default=None, type=int)
+    parser.add_argument('-c', '--category', default=55, type=int)
     parser.add_argument('-i', '--images_folder', default='images/')
     parser.add_argument('-b', '--books_folder', default='books/')
 
@@ -93,7 +95,13 @@ if __name__ == '__main__':
 
     books = []
 
-    for book_id in get_category_book_ids(55, 1, 2):
+    category_book_ids = get_category_book_ids(
+        args.category,
+        args.start_page,
+        args.end_page
+    )
+
+    for book_id in category_book_ids:
         try:
             book = download_book(
                 book_id=book_id,

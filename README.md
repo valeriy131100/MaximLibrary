@@ -27,7 +27,7 @@ $ pip install -r requirements.txt
 ### Запуск
 Находясь в директории MaximLibrary исполните:
 ```bash
-$ venv/bin/python telegram_bot.py
+$ venv/bin/python main.py
 ```
 
 ### Опциональные аргументы

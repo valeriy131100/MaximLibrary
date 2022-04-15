@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import urllib.parse
+from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
@@ -38,7 +39,11 @@ def parse_book_page(book_page):
     }
 
 
-def download_book(book_id, books_folder='books/', images_folder='images/'):
+def download_book(book_id,
+                  txts_folder='books/',
+                  skip_txts=False,
+                  images_folder='images/',
+                  skip_images=False):
     response = requests.get(
         f'https://tululu.org/b{book_id}/'
     )
@@ -48,15 +53,21 @@ def download_book(book_id, books_folder='books/', images_folder='images/'):
 
     parsed_book = parse_book_page(response.text)
 
+    book_description = parsed_book.copy()
+    book_description.pop('image_url')
+
     title = parsed_book['title']
 
-    book_path = file_workers.download_file(
-        url=f'https://tululu.org/txt.php',
-        filename=f'{book_id}. {title}.txt',
-        folder=books_folder,
-        as_text=True,
-        request_params={'id': book_id}
-    )
+    if not skip_txts:
+        txt_path = file_workers.download_file(
+            url=f'https://tululu.org/txt.php',
+            filename=f'{book_id}. {title}.txt',
+            folder=txts_folder,
+            as_text=True,
+            request_params={'id': book_id}
+        )
+
+        book_description['book_path'] = txt_path
 
     image_url = parsed_book['image_url']
     full_image_url = urllib.parse.urljoin(
@@ -64,19 +75,16 @@ def download_book(book_id, books_folder='books/', images_folder='images/'):
     )
     image_extension = file_workers.get_url_file_extension(image_url)
 
-    image_path = file_workers.download_file(
-        url=full_image_url,
-        filename=f'{book_id}. {title}.{image_extension}',
-        folder=images_folder
-    )
+    if not skip_images:
+        image_path = file_workers.download_file(
+            url=full_image_url,
+            filename=f'{book_id}. {title}.{image_extension}',
+            folder=images_folder
+        )
 
-    parsed_book.pop('image_url')
+        book_description['image_path'] = image_path
 
-    return {
-        'book_path': book_path,
-        'image_path': image_path,
-        **parsed_book
-    }
+    return book_description
 
 
 if __name__ == '__main__':
@@ -85,13 +93,24 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--start_page', default=1, type=int)
     parser.add_argument('-e', '--end_page', default=None, type=int)
     parser.add_argument('-c', '--category', default=55, type=int)
-    parser.add_argument('-i', '--images_folder', default='images/')
-    parser.add_argument('-b', '--books_folder', default='books/')
+    parser.add_argument('-f', '--dest_folder', default='books/')
+    parser.add_argument('-j', '--json_path', default='books.json')
+    parser.add_argument('-i', '--skip_images', action='store_true')
+    parser.add_argument('-t', '--skip_txts', action='store_true')
 
     args = parser.parse_args()
 
-    os.makedirs(args.images_folder, exist_ok=True)
-    os.makedirs(args.books_folder, exist_ok=True)
+    base_folder = args.dest_folder
+
+    os.makedirs(base_folder, exist_ok=True)
+
+    images_folder = os.path.join(base_folder, 'images/')
+    txts_folder = os.path.join(base_folder, 'txts/')
+    json_path = Path(os.path.join(base_folder, args.json_path))
+
+    os.makedirs(images_folder, exist_ok=True)
+    os.makedirs(txts_folder, exist_ok=True)
+    json_path.parent.mkdir(exist_ok=True, parents=True)
 
     books = []
 
@@ -105,12 +124,14 @@ if __name__ == '__main__':
         try:
             book = download_book(
                 book_id=book_id,
-                images_folder=args.images_folder,
-                books_folder=args.books_folder
+                images_folder=images_folder,
+                skip_images=args.skip_images,
+                txts_folder=txts_folder,
+                skip_txts=args.skip_txts
             )
             books.append(book)
         except requests.HTTPError:
             continue
 
-    with open('books.json', 'w', encoding='utf-8') as out:
+    with open(json_path, 'w', encoding='utf-8') as out:
         json.dump(books, out, ensure_ascii=False, indent=4)

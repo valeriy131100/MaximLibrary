@@ -9,10 +9,13 @@ from check_for_redirect import check_for_redirect
 def parse_category_page(category_page):
     soup = BeautifulSoup(category_page, 'lxml')
 
-    books = soup.find_all('table', {'class': 'd_book'})
+    books = soup.select('.d_book')
 
     return [
-        int(''.join(filter(str.isdigit, book.find('a').attrs['href'])))
+        int(''.join(filter(
+            str.isdigit,
+            book.select_one('a').attrs['href']
+        )))
         for book in books
     ]
 

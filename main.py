@@ -14,19 +14,19 @@ from parse_tululu_category import get_category_book_ids
 def parse_book_page(book_page):
     soup = BeautifulSoup(book_page, 'lxml')
 
-    book_header = soup.find('h1')
+    book_header = soup.select_one('h1')
     title, author = book_header.text.split('::')
 
-    image = soup.find('div', {'class': 'bookimage'}).find('img')
+    image = soup.select_one('.bookimage img')
 
     comments = [
-        comment.find('span').text
-        for comment in soup.find_all('div', {'class': 'texts'})
+        comment.select_one('span').text
+        for comment in soup.select('.texts')
     ]
 
     genres = [
         genre.text
-        for genre in soup.find('span', {'class': 'd_book'}).find_all('a')
+        for genre in soup.select('.d_book a')
     ]
 
     return {
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
     books = []
 
-    for book_id in get_category_book_ids(55, 1, 11):
+    for book_id in get_category_book_ids(55, 1, 2):
         try:
             book = download_book(
                 book_id=book_id,

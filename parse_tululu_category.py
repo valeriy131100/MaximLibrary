@@ -12,13 +12,13 @@ def parse_category_page(category_page):
     books = soup.find_all('table', {'class': 'd_book'})
 
     return [
-        urljoin('https://tululu.org', book.find('a').attrs['href'])
+        int(''.join(filter(str.isdigit, book.find('a').attrs['href'])))
         for book in books
     ]
 
 
-def get_category_book_links(category_id, start, end):
-    links = []
+def get_category_book_ids(category_id, start, end):
+    ids = []
     base_url = f'https://tululu.org/l{category_id}/'
 
     for page in range(start, end):
@@ -27,10 +27,10 @@ def get_category_book_links(category_id, start, end):
         response.raise_for_status()
         check_for_redirect(response)
 
-        links.extend(parse_category_page(response.text))
+        ids.extend(parse_category_page(response.text))
 
-    return links
+    return ids
 
 
 if __name__ == '__main__':
-    print(get_category_book_links(55, 1, 11))
+    print(get_category_book_ids(55, 1, 11))

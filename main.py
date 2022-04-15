@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import urllib.parse
 
@@ -7,13 +8,14 @@ from bs4 import BeautifulSoup
 
 import file_workers
 from check_for_redirect import check_for_redirect
+from parse_tululu_category import get_category_book_ids
 
 
 def parse_book_page(book_page):
     soup = BeautifulSoup(book_page, 'lxml')
 
     book_header = soup.find('h1')
-    title, _ = book_header.text.split('::')
+    title, author = book_header.text.split('::')
 
     image = soup.find('div', {'class': 'bookimage'}).find('img')
 
@@ -29,6 +31,7 @@ def parse_book_page(book_page):
 
     return {
         'title': title.strip(),
+        'author': author.strip(),
         'image_url': image.attrs['src'],
         'comments': comments,
         'genres': genres
@@ -47,7 +50,7 @@ def download_book(book_id, books_folder='books/', images_folder='images/'):
 
     title = parsed_book['title']
 
-    file_workers.download_file(
+    book_path = file_workers.download_file(
         url=f'https://tululu.org/txt.php',
         filename=f'{book_id}. {title}.txt',
         folder=books_folder,
@@ -61,11 +64,19 @@ def download_book(book_id, books_folder='books/', images_folder='images/'):
     )
     image_extension = file_workers.get_url_file_extension(image_url)
 
-    file_workers.download_file(
+    image_path = file_workers.download_file(
         url=full_image_url,
         filename=f'{book_id}. {title}.{image_extension}',
         folder=images_folder
     )
+
+    parsed_book.pop('image_url')
+
+    return {
+        'book_path': book_path,
+        'image_path': image_path,
+        **parsed_book
+    }
 
 
 if __name__ == '__main__':
@@ -80,12 +91,18 @@ if __name__ == '__main__':
     os.makedirs(args.images_folder, exist_ok=True)
     os.makedirs(args.books_folder, exist_ok=True)
 
-    for book_id in range(args.start_id, args.end_id + 1):
+    books = []
+
+    for book_id in get_category_book_ids(55, 1, 11):
         try:
-            download_book(
+            book = download_book(
                 book_id=book_id,
                 images_folder=args.images_folder,
                 books_folder=args.books_folder
             )
+            books.append(book)
         except requests.HTTPError:
             continue
+
+    with open('books.json', 'w', encoding='utf-8') as out:
+        json.dump(books, out, ensure_ascii=False, indent=4)

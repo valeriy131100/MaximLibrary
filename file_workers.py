@@ -22,7 +22,7 @@ def download_file(url, filename, folder, as_text=False, request_params=None):
     filepath = os.path.join(folder, sanitize_filename(filename))
 
     if as_text:
-        with open(filepath, 'w') as file:
+        with open(filepath, 'w', encoding=response.encoding) as file:
             file.write(response.text)
     else:
         with open(filepath, 'wb') as file:

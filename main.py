@@ -6,11 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 
 import file_workers
-
-
-def check_for_redirect(response: requests.Response):
-    if response.history:
-        raise requests.HTTPError
+from check_for_redirect import check_for_redirect
 
 
 def parse_book_page(book_page):

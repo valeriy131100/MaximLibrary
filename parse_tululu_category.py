@@ -3,6 +3,8 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
+from check_for_redirect import check_for_redirect
+
 
 def parse_category_page(category_page):
     soup = BeautifulSoup(category_page, 'lxml')
@@ -15,9 +17,20 @@ def parse_category_page(category_page):
     ]
 
 
+def get_category_book_links(category_id, start, end):
+    links = []
+    base_url = f'https://tululu.org/l{category_id}/'
+
+    for page in range(start, end):
+        category_url = urljoin(base_url, f'{page}/')
+        response = requests.get(category_url)
+        response.raise_for_status()
+        check_for_redirect(response)
+
+        links.extend(parse_category_page(response.text))
+
+    return links
+
+
 if __name__ == '__main__':
-    print(parse_category_page(
-        requests.get(
-            'https://tululu.org/l55/'
-        ).text
-    ))
+    print(get_category_book_links(55, 1, 11))

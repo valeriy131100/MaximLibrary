@@ -4,7 +4,7 @@ import urllib.parse
 import requests
 from pathvalidate import sanitize_filename
 
-from main import check_for_redirect
+from check_for_redirect import check_for_redirect
 
 
 def get_url_file_extension(url):

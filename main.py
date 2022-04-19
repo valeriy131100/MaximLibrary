@@ -27,7 +27,7 @@ def parse_book_page(book_page):
 
     genres = [
         genre.text
-        for genre in soup.select('.d_book a')
+        for genre in soup.select('span.d_book a')
     ]
 
     return {

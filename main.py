@@ -53,9 +53,6 @@ def download_book(book_id,
 
     parsed_book = parse_book_page(response.text)
 
-    book_description = parsed_book.copy()
-    book_description.pop('image_url')
-
     title = parsed_book['title']
 
     if not skip_txts:
@@ -67,9 +64,9 @@ def download_book(book_id,
             request_params={'id': book_id}
         )
 
-        book_description['book_path'] = txt_path
+        parsed_book['book_path'] = txt_path
 
-    image_url = parsed_book['image_url']
+    image_url = parsed_book.pop('image_url')
     full_image_url = urllib.parse.urljoin(
         'https://tululu.org', image_url
     )
@@ -82,9 +79,9 @@ def download_book(book_id,
             folder=images_folder
         )
 
-        book_description['image_path'] = image_path
+        parsed_book['image_path'] = image_path
 
-    return book_description
+    return parsed_book
 
 
 if __name__ == '__main__':

@@ -47,6 +47,6 @@ def get_category_book_ids(category_id, start, end):
                 break
 
         except requests.HTTPError:
-            break
+            continue
 
     return ids

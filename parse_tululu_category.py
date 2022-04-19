@@ -13,10 +13,10 @@ def parse_category_page(category_page):
     books = soup.select('.d_book')
 
     ids = [
-        int(''.join(filter(
+        ''.join(filter(
             str.isdigit,
             book.select_one('a').attrs['href']
-        )))
+        ))
         for book in books
     ]
 

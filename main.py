@@ -67,12 +67,13 @@ def download_book(book_id,
         parsed_book['book_path'] = txt_path
 
     image_url = parsed_book.pop('image_url')
-    full_image_url = urllib.parse.urljoin(
-        'https://tululu.org', image_url
-    )
-    image_extension = file_workers.get_url_file_extension(image_url)
 
     if not skip_images:
+        full_image_url = urllib.parse.urljoin(
+            'https://tululu.org', image_url
+        )
+        image_extension = file_workers.get_url_file_extension(image_url)
+
         image_path = file_workers.download_file(
             url=full_image_url,
             filename=f'{book_id}. {title}.{image_extension}',

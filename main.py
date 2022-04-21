@@ -76,7 +76,7 @@ def download_book(book_id,
 
         image_path = file_workers.download_file(
             url=full_image_url,
-            filename=f'{book_id}. {title}.{image_extension}',
+            filename=f'{book_id}. {title}{image_extension}',
             folder=images_folder
         )
 

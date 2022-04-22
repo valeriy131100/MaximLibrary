@@ -1,4 +1,5 @@
 import json
+import math
 import os
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -16,9 +17,13 @@ def reload_website():
     with open('books/books.json', encoding='utf-8') as books_file:
         books = json.load(books_file)
 
+    pages_count = math.ceil(len(books) / 10)
+
     for page_num, page_books in enumerate(chunked(books, 10), start=1):
         rendered_page = template.render(
-            books=chunked(page_books, 2)
+            books=chunked(page_books, 2),
+            current_page=page_num,
+            pages_count=pages_count
         )
 
         page_path = f'pages/index{page_num}.html'

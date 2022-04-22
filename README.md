@@ -1,6 +1,8 @@
 # MaximLibrary
 
-Скрипт для скачивания книг и иллюстраций с сайта [Tululu.org](https://https://tululu.org/).
+Скрипт для скачивания книг и иллюстраций с сайта [Tululu.org](https://https://tululu.org/), а также генерации сайта-библиотеки на его основе.
+
+Пример сайта - [Репозиторий](https://github.com/valeriy131100/MaximLibraryWebsiteExample), [Сайт](https://valeriy131100.github.io/MaximLibraryWebsiteExample/pages/index1.html).
 
 ## Установка
 Вам понадобится установленный Python 3.6+ и git.

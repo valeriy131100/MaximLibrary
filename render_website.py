@@ -7,6 +7,9 @@ from livereload import Server
 from more_itertools import chunked
 
 
+BOOKS_PER_PAGE = 10
+
+
 def reload_website():
     env = Environment(
         loader=FileSystemLoader('.'),
@@ -17,9 +20,10 @@ def reload_website():
     with open('books/books.json', encoding='utf-8') as books_file:
         books = json.load(books_file)
 
-    pages_count = math.ceil(len(books) / 10)
+    pages_count = math.ceil(len(books) / BOOKS_PER_PAGE)
 
-    for page_num, page_books in enumerate(chunked(books, 10), start=1):
+    chunked_books = chunked(books, BOOKS_PER_PAGE)
+    for page_num, page_books in enumerate(chunked_books, start=1):
         rendered_page = template.render(
             books=chunked(page_books, 2),
             current_page=page_num,
